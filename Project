@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThingSpeak Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>ThingSpeak Data</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody id="data-table">
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Replace with your Channel ID and API Key
+    const channelID = "2771514";
+    const apiKey = "YOUR_READ_API_KEY";
+    const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=1`;
+
+    async function fetchData() {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const latestFeed = data.feeds[0];
+
+        const fields = [
+          { name: "Temperature_S", value: latestFeed.field1 },
+          { name: "Humidity_S", value: latestFeed.field2 },
+          { name: "Enthalpy_S", value: latestFeed.field3 },
+          { name: "Temperature_R", value: latestFeed.field4 },
+          { name: "Humidity_R", value: latestFeed.field5 },
+          { name: "Enthalpy_R", value: latestFeed.field6 },
+        ];
+
+        const tableBody = document.getElementById("data-table");
+        tableBody.innerHTML = "";
+
+        fields.forEach(field => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${field.name}</td><td>${field.value || "N/A"}</td>`;
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 10000); // Refresh data every 10 seconds
+  </script>
+</body>
+</html>
